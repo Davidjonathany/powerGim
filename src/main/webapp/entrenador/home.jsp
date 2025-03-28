@@ -1,0 +1,20 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: DAVID
+  Date: 27/3/2025
+  Time: 16:15
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+<p>Bienvenido entrenador</p>
+<form action="../AsistenciaVistaServlet" method="get">
+    <button type="submit">Ver Asistencias</button>
+</form>
+</body>
+</html>
+

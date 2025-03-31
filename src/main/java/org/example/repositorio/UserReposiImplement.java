@@ -44,15 +44,17 @@ public class UserReposiImplement {
 
     // Método para obtener el usuario por su nombre
     public Optional<UsuarioLogin> buscarPorUsuario(String usuario) {
-        String sql = "SELECT usuario, clave, rol FROM usuarios WHERE usuario = ?";
+        String sql = "SELECT id, usuario, clave, rol, cedula FROM usuarios WHERE usuario = ?"; // Incluir cedula
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, usuario);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(new UsuarioLogin(
+                            rs.getInt("id"),
                             rs.getString("usuario"),
                             rs.getString("clave"),
-                            rs.getString("rol")
+                            rs.getString("rol"),
+                            rs.getString("cedula")  // Nuevo campo
                     ));
                 }
             }
@@ -61,6 +63,5 @@ public class UserReposiImplement {
         }
         return Optional.empty();
     }
-
 }
 

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.modelos.Usuario;
+import org.example.services.ServiceException;
 import org.example.services.UsuarioService;
 import org.example.services.UsuarioServiceImplement;
 
@@ -35,15 +36,37 @@ public class UsuarioFormServlet extends HttpServlet {
         String cedula = req.getParameter("cedula");
         String direccion = req.getParameter("direccion");
 
+        // Validaciones en backend
+        if (!telefono.matches("\\d{10}")) {
+            req.setAttribute("error", "Teléfono inválido.");
+            req.getRequestDispatcher("/admin/usuarioform.jsp").forward(req, resp);
+            return;
+        }
+
+        if (!cedula.matches("\\d{10}")) {
+            req.setAttribute("error", "Cédula inválida.");
+            req.getRequestDispatcher("/admin/usuarioform.jsp").forward(req, resp);
+            return;
+        }
+        if (!correo.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(com|ec|edu|net|org|gov|mil|biz|info|mobi|name|aero|jobs|museum)$")) {
+            req.setAttribute("error", "Correo electrónico no válido");
+            req.getRequestDispatcher("/admin/usuarioform.jsp").forward(req, resp);
+            return;
+        }
+
         // Crear el objeto Usuario
         Usuario nuevoUsuario = new Usuario(nombre, apellido, usuario, clave, rol, correo, telefono, cedula, direccion);
 
-        // Guardar el nuevo usuario en la base de datos
+        // Guardar el nuevo usuario
         Connection conn = (Connection) req.getAttribute("conn");
         UsuarioService service = new UsuarioServiceImplement(conn);
-        service.guardar(nuevoUsuario); // Llamada a guardar en lugar de agregar
 
-        // Redirigir a la lista de usuarios después de agregar
-        resp.sendRedirect(req.getContextPath() + "/UsuarioServlet");
+        try {
+            service.guardar(nuevoUsuario);
+            resp.sendRedirect(req.getContextPath() + "/UsuarioServlet");
+        } catch (ServiceException e) {
+            req.setAttribute("error", e.getMessage());
+            req.getRequestDispatcher("/admin/usuarioform.jsp").forward(req, resp);
+        }
     }
 }

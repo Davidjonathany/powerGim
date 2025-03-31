@@ -38,9 +38,15 @@ public class UsuarioServiceImplement implements UsuarioService {
     @Override
     public void guardar(Usuario usuario) {
         try {
+            // Verificar si la cédula ya existe
+            if (repositorio.usuarioExistePorCedula(usuario.getCedula())) {
+                throw new ServiceException("La cédula " + usuario.getCedula() + " ya está registrada");
+            }
+
+            // Si no existe, guardar
             repositorio.guardar(usuario);
         } catch (SQLException ex) {
-            throw new ServiceException("Error al guardar usuario", ex);
+            throw new ServiceException("Error al guardar usuario: " + ex.getMessage(), ex);
         }
     }
 

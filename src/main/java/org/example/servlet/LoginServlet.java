@@ -19,47 +19,66 @@ import java.util.Optional;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String usuario = request.getParameter("usuario");
-        String clave = request.getParameter("clave");
-        String rolFormulario = request.getParameter("rol");
 
-        try (Connection conn = Conexion.getConnection()) {
-            UsuarioLoginService loginService = new UsuarioLoginServiceImplement(conn);
-            Optional<UsuarioLogin> usuarioValidado = loginService.autenticar(usuario, clave);
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        response.sendRedirect("index.jsp");
+    }
+        @Override
+        protected void doPost(HttpServletRequest request, HttpServletResponse response)
+                throws ServletException, IOException {
+            String usuario = request.getParameter("usuario");
+            String clave = request.getParameter("clave");
+            String rolFormulario = request.getParameter("rol");
 
-            if (usuarioValidado.isPresent()) {
-                UsuarioLogin user = usuarioValidado.get();
-                // Verificamos si el rol que se pasa en el formulario coincide con el rol del usuario autenticado
-                if (user.getRol().equalsIgnoreCase(rolFormulario)) {
-                    HttpSession session = request.getSession();
-                    session.setAttribute("usuario", user);
+            try (Connection conn = Conexion.getConnection()) {
+                UsuarioLoginService loginService = new UsuarioLoginServiceImplement(conn);
+                Optional<UsuarioLogin> usuarioValidado = loginService.autenticar(usuario, clave);
 
-                    // Redirige según el rol del usuario
-                    switch (rolFormulario.toLowerCase()) {
-                        case "administrador":
-                            response.sendRedirect("admin/home.jsp");
-                            break;
-                        case "entrenador":
-                            response.sendRedirect("entrenador/home.jsp");
-                            break;
-                        case "cliente":
-                            response.sendRedirect("cliente/home.jsp");
-                            break;
-                        default:
-                            response.sendRedirect("index.jsp?error=invalid");
-                            break;
-                    }
-                } else {
-                    response.sendRedirect("index.jsp?error=invalid");
+                if (!usuarioValidado.isPresent()) {
+                    response.sendRedirect("index.jsp?error=nouser");
+                    return;
                 }
-            } else {
-                response.sendRedirect("index.jsp?error=invalid");
+
+                UsuarioLogin user = usuarioValidado.get();
+
+                if (!user.getRol().equals(rolFormulario)) {
+                    response.sendRedirect("index.jsp?error=wrongrole");
+                    return;
+                }
+
+                HttpSession session = request.getSession();
+                session.setAttribute("usuario", user);
+                session.setAttribute("rol", user.getRol());
+                session.setAttribute("idUsuario", user.getId());
+                session.setAttribute("cedula", user.getCedula());  // Guardamos la cédula
+
+                switch (user.getRol()) {
+                    case "Administrador":
+                        response.sendRedirect(request.getContextPath() + "/admin/home.jsp");
+                        break;
+                    case "Entrenador":
+                        response.sendRedirect(request.getContextPath() + "/entrenador/home.jsp");
+                        break;
+                    case "Cliente":
+                        response.sendRedirect(request.getContextPath() + "/cliente/home.jsp");
+                        break;
+                    default:
+                        session.invalidate();
+                        response.sendRedirect("index.jsp?error=invalidrole");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.sendRedirect("index.jsp?error=server");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect("index.jsp?error=server");
         }
     }
-}
+
+
 

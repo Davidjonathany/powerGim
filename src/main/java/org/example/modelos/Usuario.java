@@ -16,7 +16,7 @@ public class Usuario {
 
     // Constructor vacío
     public Usuario() {
-        // No es necesario inicializar atributos aquí si no se requiere
+
     }
 
     // Constructor para crear un nuevo usuario (sin ID ya que es autoincremental)

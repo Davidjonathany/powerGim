@@ -156,4 +156,23 @@ public class UsuarioRepositorio implements Repositorio<Usuario> {
             }
         }
     }
+    public boolean esCliente(int idUsuario) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM usuarios WHERE id = ? AND rol = 'Cliente'";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idUsuario);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
+    }
+
+    public boolean esEntrenador(int idUsuario) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM usuarios WHERE id = ? AND rol = 'Entrenador'";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idUsuario);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
+    }
 }

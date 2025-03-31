@@ -1,85 +1,127 @@
 package org.example.servlet;
-//Desarrollado por David Jonathan Yepez Proaño
-//Fecha de creación 27-03-2025
+// Desarrollado por David Jonathan Yepez Proaño
+// Fecha de actualización 27-03-2025
 
-import jakarta.servlet.ServletException;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import org.example.modelos.Asistencia;
+import org.example.modelos.UsuarioLogin;
 import org.example.services.AsistenciaService;
 import org.example.services.AsistenciaServiceImplement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
 
-@WebServlet("/AsistenciaFormServlet")
+@WebServlet("/registrar-asistencia")
 public class AsistenciaFormServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Enviar al JSP para mostrar el formulario
-        request.getRequestDispatcher("compartido/agregarAsistencia.jsp").forward(request, response);
-    }
+        HttpSession session = request.getSession(false);
+        UsuarioLogin usuario = validarSesionYROL(session, response, request);
+        if(usuario == null) return;
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Obtener los parámetros del formulario
-        String cedula = request.getParameter("cedula");
-        String fechaAsistencia = request.getParameter("fechaAsistencia");
-
-        // Crear la conexión a la base de datos (esto debe manejarse correctamente con pool de conexiones)
         Connection conn = (Connection) request.getAttribute("conn");
-
-        // Buscar el id_cliente basado en la cédula
-        String sqlBuscarIdUsuario = "SELECT id FROM Usuarios WHERE cedula = ?";
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        int idCliente = -1;
+        AsistenciaService service = new AsistenciaServiceImplement(conn);
 
         try {
-            stmt = conn.prepareStatement(sqlBuscarIdUsuario);
-            stmt.setString(1, cedula);
-            rs = stmt.executeQuery();
+            switch(usuario.getRol()) {
+                case "Administrador":
+                    request.getRequestDispatcher("/admin/registroAsistencia.jsp").forward(request, response);
+                    break;
 
-            if (rs.next()) {
-                idCliente = rs.getInt("id");
+                case "Entrenador":
+                    List<UsuarioLogin> clientes = service.obtenerClientesPorEntrenador(usuario.getId());
+                    request.setAttribute("clientes", clientes);
+                    request.getRequestDispatcher("/entrenador/registroAsistencia.jsp").forward(request, response);
+                    break;
+
+                case "Cliente":
+                    request.setAttribute("cedulaCliente", usuario.getCedula());
+                    request.getRequestDispatcher("/cliente/registroAsistencia.jsp").forward(request, response);
+                    break;
+
+                default:
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Rol no reconocido");
             }
-
-            if (idCliente != -1) {
-                // Convertir la fecha de String a java.sql.Date
-                java.sql.Date fechaAsistenciaSQL = java.sql.Date.valueOf(fechaAsistencia);
-
-                // Crear un objeto Asistencia con los datos recibidos
-                Asistencia nuevaAsistencia = new Asistencia();
-                nuevaAsistencia.setIdCliente(idCliente);  // Establecer el ID del cliente
-                nuevaAsistencia.setFechaAsistencia(fechaAsistenciaSQL);  // Establecer la fecha de asistencia
-
-                // Crear el servicio para insertar la asistencia en la base de datos
-                AsistenciaService service = new AsistenciaServiceImplement(conn);
-                service.agregar(nuevaAsistencia);
-
-                // Redirigir a la lista de asistencias
-                response.sendRedirect(request.getContextPath() + "/AsistenciaVistaServlet");
-            } else {
-                // Si no se encuentra el usuario por cédula, mostrar mensaje de error
-                request.setAttribute("error", "La cédula no está registrada.");
-                request.getRequestDispatcher("compartido/error.jsp").forward(request, response);
-            }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            // Manejar errores de base de datos
-        } finally {
-            // Cerrar recursos
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            // En lugar de redirigir a error.jsp, mostramos el error en la página actual
+            request.setAttribute("error", "Error al cargar el formulario: " + e.getMessage());
+
+            // Redirigimos a la página principal correspondiente al rol
+            String redirectPath = switch(usuario.getRol()) {
+                case "Administrador" -> "/admin/home.jsp";
+                case "Entrenador" -> "/entrenador/home.jsp";
+                case "Cliente" -> "/cliente/home.jsp";
+                default -> "/";
+            };
+            request.getRequestDispatcher(redirectPath).forward(request, response);
+        }
+    }
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        UsuarioLogin registrador = validarSesionYROL(session, response, request);
+        if(registrador == null) return;
+
+        Connection conn = (Connection) request.getAttribute("conn");
+        AsistenciaService service = new AsistenciaServiceImplement(conn);
+
+        try {
+            int idUsuario;
+            String tipoAsistencia = request.getParameter("tipoAsistencia");
+
+            if(registrador.getRol().equals("Cliente")) {
+                idUsuario = registrador.getId();
+            } else {
+                String cedula = request.getParameter("cedula");
+                idUsuario = service.obtenerIdUsuarioPorCedula(cedula);
+
+                if(idUsuario == -1) {
+                    throw new IllegalArgumentException("No se encontró usuario con cédula: " + cedula);
+                }
+
+                if(registrador.getRol().equals("Entrenador")) {
+                    if(!service.validarClienteDeEntrenador(idUsuario, registrador.getId())) {
+                        throw new SecurityException("No tiene permisos para registrar asistencia a este cliente");
+                    }
+                }
+            }
+
+            Asistencia asistencia = new Asistencia();
+            asistencia.setIdUsuario(idUsuario);
+            asistencia.setIdRegistrador(registrador.getId());
+            asistencia.setTipoAsistencia(tipoAsistencia);
+            asistencia.setFechaAsistencia(Timestamp.valueOf(LocalDateTime.now()));
+
+            if(!service.agregar(asistencia)) {
+                throw new RuntimeException("Error al guardar la asistencia en la base de datos");
+            }
+
+            // Redirección al servlet de vista de asistencias
+            response.sendRedirect(request.getContextPath() + "/AsistenciaVistaServlet?success=Asistencia registrada exitosamente");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", e.getMessage());
+
+            if(registrador.getRol().equals("Cliente")) {
+                request.getRequestDispatcher("/cliente/registroAsistencia.jsp").forward(request, response);
+            } else {
+                doGet(request, response);
             }
         }
+    }
+    private UsuarioLogin validarSesionYROL(HttpSession session, HttpServletResponse response, HttpServletRequest request) throws IOException {
+        if(session == null || session.getAttribute("usuario") == null) {
+            response.sendRedirect(request.getContextPath() + "/LoginServlet");
+            return null;
+        }
+        return (UsuarioLogin) session.getAttribute("usuario");
     }
 }

@@ -2,12 +2,20 @@ package org.example.modelos;
 // Desarrollado por David Jonathan Yepez Proaño
 // Fecha de creación 27-03-2025
 
+import java.sql.Timestamp;
+
 public class AsistenciaVista {
     private int idAsistencia;
-    private int idCliente;
-    private String nombreCliente;
-    private String apellidoCliente;
-    private String fechaAsistencia;
+    private int idUsuario;
+    private String nombre;
+    private String apellido;
+    private String cedula;
+    private String rol;
+    private Timestamp fechaAsistencia;
+    private String tipoAsistencia;
+    private String nombreRegistrador;
+    private String apellidoRegistrador;
+    private String rolRegistrador;
 
     // Getters y Setters
     public int getIdAsistencia() {
@@ -18,35 +26,79 @@ public class AsistenciaVista {
         this.idAsistencia = idAsistencia;
     }
 
-    public int getIdCliente() {
-        return idCliente;
+    public int getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setIdCliente(int idCliente) {
-        this.idCliente = idCliente;
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
-    public String getNombreCliente() {
-        return nombreCliente;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setNombreCliente(String nombreCliente) {
-        this.nombreCliente = nombreCliente;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
-    public String getApellidoCliente() {
-        return apellidoCliente;
+    public String getApellido() {
+        return apellido;
     }
 
-    public void setApellidoCliente(String apellidoCliente) {
-        this.apellidoCliente = apellidoCliente;
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+    public void setCedula(String cedula) {
+        this.cedula = cedula; }
+    public String getCedula() { return cedula; }
+
+    public String getRol() {
+        return rol;
     }
 
-    public String getFechaAsistencia() {
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+
+    public Timestamp getFechaAsistencia() {
         return fechaAsistencia;
     }
 
-    public void setFechaAsistencia(String fechaAsistencia) {
+    public void setFechaAsistencia(Timestamp fechaAsistencia) {
         this.fechaAsistencia = fechaAsistencia;
     }
+
+    public String getTipoAsistencia() {
+        return tipoAsistencia;
+    }
+
+    public void setTipoAsistencia(String tipoAsistencia) {
+        this.tipoAsistencia = tipoAsistencia;
+    }
+
+    public String getNombreRegistrador() {
+        return nombreRegistrador;
+    }
+
+    public void setNombreRegistrador(String nombreRegistrador) {
+        this.nombreRegistrador = nombreRegistrador;
+    }
+
+    public String getApellidoRegistrador() {
+        return apellidoRegistrador;
+    }
+
+    public void setApellidoRegistrador(String apellidoRegistrador) {
+        this.apellidoRegistrador = apellidoRegistrador;
+    }
+
+    public String getRolRegistrador() {
+        return rolRegistrador;
+    }
+
+    public void setRolRegistrador(String rolRegistrador) {
+        this.rolRegistrador = rolRegistrador;
+    }
+
 }

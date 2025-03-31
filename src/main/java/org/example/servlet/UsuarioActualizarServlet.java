@@ -13,6 +13,7 @@ import org.example.services.UsuarioServiceImplement;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.Optional;
 
 @WebServlet("/UsuarioActualizar")
 public class UsuarioActualizarServlet extends HttpServlet {
@@ -67,17 +68,70 @@ public class UsuarioActualizarServlet extends HttpServlet {
         String cedula = req.getParameter("cedula");
         String direccion = req.getParameter("direccion");
 
+        // Validaciones en backend
+        if (!telefono.matches("\\d{10}")) {
+            req.setAttribute("error", "Teléfono no válido");
+            Usuario usuarioExistente = service.porId(id).orElse(null);
+            req.setAttribute("usuario", usuarioExistente);
+            getServletContext().getRequestDispatcher("/admin/usuarioActualizar.jsp").forward(req, resp);
+            return;
+        }
+
+        if (!cedula.matches("\\d{10}")) {
+            req.setAttribute("error", "Cédula no válida");
+            Usuario usuarioExistente = service.porId(id).orElse(null);
+            req.setAttribute("usuario", usuarioExistente);
+            getServletContext().getRequestDispatcher("/admin/usuarioActualizar.jsp").forward(req, resp);
+            return;
+        }
+
+        // Verificar si la cédula ya existe (excepto para el usuario actual)
+        try {
+            Optional<Usuario> usuarioConCedula = service.buscarPorCedula(cedula);
+            if (usuarioConCedula.isPresent() && usuarioConCedula.get().getId() != id) {
+                req.setAttribute("error", "La cédula " + cedula + " ya está registrada por otro usuario.");
+                Usuario usuarioExistente = service.porId(id).orElse(null);
+                req.setAttribute("usuario", usuarioExistente);
+                getServletContext().getRequestDispatcher("/admin/usuarioActualizar.jsp").forward(req, resp);
+                return;
+            }
+        } catch (Exception e) {
+            req.setAttribute("error", "Error al verificar la cédula.");
+            Usuario usuarioExistente = service.porId(id).orElse(null);
+            req.setAttribute("usuario", usuarioExistente);
+            getServletContext().getRequestDispatcher("/admin/usuarioActualizar.jsp").forward(req, resp);
+            return;
+        }
+        // Validacion de correo
+        if (!validarCorreo(correo)) {
+            req.setAttribute("error", "Correo electrónico no válido");
+            Usuario usuarioExistente = service.porId(id).orElse(null);
+            req.setAttribute("usuario", usuarioExistente);
+            getServletContext().getRequestDispatcher("/admin/usuarioActualizar.jsp").forward(req, resp);
+            return;
+        }
+
         // Crea el objeto usuario con los datos del formulario
         Usuario usuarioActualizar = new Usuario(nombre, apellido, usuario, clave, rol, correo, telefono, cedula, direccion);
         usuarioActualizar.setId(id);
 
         // Llama al servicio para actualizar el usuario
         try {
-            service.actualizar(id, usuarioActualizar);  // Llamada con el id y el objeto usuario
+            service.actualizar(id, usuarioActualizar);
             resp.sendRedirect(req.getContextPath() + "/UsuarioServlet");
         } catch (Exception e) {
-            req.setAttribute("error", "No se pudo actualizar el usuario.");
+            req.setAttribute("error", "No se pudo actualizar el usuario: " + e.getMessage());
+            Usuario usuarioExistente = service.porId(id).orElse(null);
+            req.setAttribute("usuario", usuarioExistente);
             getServletContext().getRequestDispatcher("/admin/usuarioActualizar.jsp").forward(req, resp);
         }
+    }
+    private boolean validarCorreo(String correo) {
+        String regex = "^[^@]+@[^@]+\\.[^@]+$";
+        if (!correo.matches(regex)) {
+            return false;
+        }
+        String dominio = correo.split("@")[1];
+        return dominio.endsWith(".com") || dominio.endsWith(".ec");
     }
 }

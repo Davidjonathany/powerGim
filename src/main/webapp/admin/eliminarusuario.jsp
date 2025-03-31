@@ -22,9 +22,17 @@
                     <div class="panel-body">
                         <form action="<%=request.getContextPath()%>/EliminarUsuario" method="post">
                             <input type="hidden" name="idUsuario" value="<%=usuario.getId()%>">
-                            <p>¿Está seguro que desea eliminar el usuario con ID <%=usuario.getId()%> y nombre <%=usuario.getNombre()%> <%=usuario.getApellido()%>?</p>
+                            <p>¿Está seguro que desea eliminar el siguiente usuario?</p>
+                            <div class="alert alert-info">
+                                <ul style="list-style-type: none; padding-left: 0;">
+                                    <li><strong>ID:</strong> <%=usuario.getId()%></li>
+                                    <li><strong>Nombre:</strong> <%=usuario.getNombre()%> <%=usuario.getApellido()%></li>
+                                    <li><strong>Cédula:</strong> <%=usuario.getCedula()%></li>
+                                    <li><strong>Rol:</strong> <%=usuario.getRol()%></li>
+                                </ul>
+                            </div>
                             <button type="submit" class="btn btn-danger" style="background-color: #00d1ff; border-color: #000000;">Confirmar Eliminación</button>
-                            <a href="<%=request.getContextPath()%>/UsuarioServlet" class="btn btn-success" style="background-color: #fd4242">
+                            <a href="<%=request.getContextPath()%>/UsuarioServlet" class="btn btn-danger" style="background-color: #fd4242">
                                 <i class="fa fa-arrow-circle-left"></i> Cancelar</a>
                         </form>
                     </div>
@@ -35,4 +43,3 @@
 </div>
 
 <jsp:include page="../footer.jsp"></jsp:include>
-

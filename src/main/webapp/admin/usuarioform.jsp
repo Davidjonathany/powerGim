@@ -14,6 +14,10 @@
                     </div>
 
                     <div class="panel-body">
+                        <%-- Mostrar mensaje de error si existe --%>
+                        <c:if test="${not empty error}">
+                            <div class="alert alert-danger">${error}</div>
+                        </c:if>
                         <form action="${pageContext.request.contextPath}/UsuarioFormServlet" method="POST">
                             <div class="form-group">
                                 <label for="nombre">Nombre</label>
@@ -46,17 +50,22 @@
 
                             <div class="form-group">
                                 <label for="correo">Correo</label>
-                                <input type="email" name="correo" id="correo" class="form-control" required>
+                                <input type="email" name="correo" id="correo" class="form-control"
+                                       required
+                                       pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|ec|edu|net|org|gov|mil|biz|info|mobi|name|aero|jobs|museum)$"
+                                       title="Correo electrónico no válido">
                             </div>
 
                             <div class="form-group">
                                 <label for="telefono">Teléfono</label>
-                                <input type="text" name="telefono" id="telefono" class="form-control" required>
+                                <input type="text" name="telefono" id="telefono" class="form-control"
+                                       required pattern="\d{10}" title="El teléfono ingresado no es valido">
                             </div>
 
                             <div class="form-group">
                                 <label for="cedula">Cédula</label>
-                                <input type="text" name="cedula" id="cedula" class="form-control" required>
+                                <input type="text" name="cedula" id="cedula" class="form-control"
+                                       required pattern="\d{10}" title="La cédula ingresada no es valida.">
                             </div>
 
                             <div class="form-group">
@@ -65,6 +74,8 @@
                             </div>
 
                             <button type="submit" class="btn btn-success">Agregar Usuario</button>
+                            <a href="<%=request.getContextPath()%>/UsuarioServlet" class="btn btn-danger" style="background-color: #fd4242">
+                                <i class="fa fa-arrow-circle-left"></i> Cancelar</a>
                         </form>
                     </div>
                 </div>
@@ -72,5 +83,39 @@
         </div>
     </section>
 </div>
+<script>
+    document.querySelector("form").addEventListener("submit", function(event) {
+        let telefono = document.getElementById("telefono").value;
+        let cedula = document.getElementById("cedula").value;
+        let correo = document.getElementById("correo").value;
+
+        if (!/^\d{10}$/.test(telefono)) {
+            alert("Teléfono inválido. Intente nuevamente.");
+            event.preventDefault();
+        }
+
+        if (!/^\d{10}$/.test(cedula)) {
+            alert("Cédula inválida. Intente nuevamente.");
+            event.preventDefault();
+        }
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|ec|edu|net|org|gov|mil|biz|info|mobi|name|aero|jobs|museum)$/i;
+        if (!emailRegex.test(correo)) {
+            alert("Correo electrónico no válido");
+            event.preventDefault();
+        }
+    });
+    // Validación en tiempo real para el correo
+    document.getElementById("correo").addEventListener("blur", function() {
+        const correo = this.value;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|ec|edu|net|org|gov|mil|biz|info|mobi|name|aero|jobs|museum)$/i;
+
+        if (correo && !emailRegex.test(correo)) {
+            this.setCustomValidity("Correo electrónico no válido");
+            this.reportValidity();
+        } else {
+            this.setCustomValidity("");
+        }
+    });
+</script>
 
 <jsp:include page="../footer.jsp"></jsp:include>

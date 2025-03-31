@@ -25,8 +25,8 @@
                     </div>
 
                     <div class="panel-body table-responsive">
-                        <table class="table table-striped table-bordered">
-                            <thead>
+                        <table class="table table-hover-custom centered-table">
+                            <thead class="table-header-custom">
                             <tr>
                                 <th>ID</th>
                                 <th>Nombre</th>

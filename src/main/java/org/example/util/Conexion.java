@@ -1,6 +1,6 @@
 package org.example.util;
-//Desarrollado por David Jonathan Yepez Proaño
-//Fecha de creacion 27-03-2025
+// Desarrollado por David Jonathan Yepez Proaño
+// Fecha de creación 27-03-2025
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import javax.sql.DataSource;
@@ -10,43 +10,48 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Conexion {
-    //Creamos las variables para la conexion}
-    private static final String JDBC_URL="jdbc:mysql://localhost:3306/gim?useSSL=false&useTimezone=true&serverTimezone=UTC";
-    //Creamos una variable para guardar el usuario
-    private static final String JDBC_USERNAME="root";
+    // Detalles de la conexión
+    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/powergim?useSSL=false&useTimezone=true&serverTimezone=UTC";
+    private static final String JDBC_USERNAME = "root";
+    private static final String JDBC_PASSWORD = "";
 
-    //Creamos una variable para guardar el usuario
-    private static final String JDBC_PASSWORD="";
-    //Implementamos un metodo
-    public static DataSource getDataSource(){
-        BasicDataSource ds= new BasicDataSource();
-        ds.setUrl(JDBC_URL);
-        ds.setUsername(JDBC_USERNAME);
-        ds.setPassword(JDBC_PASSWORD);
-        ds.setInitialSize(50);
-        return ds;
+    // Crea el pool de conexiones
+    private static final BasicDataSource dataSource = new BasicDataSource();
+
+    static {
+        dataSource.setUrl(JDBC_URL);
+        dataSource.setUsername(JDBC_USERNAME);
+        dataSource.setPassword(JDBC_PASSWORD);
+        dataSource.setInitialSize(10); // Número inicial de conexiones en el pool
+        dataSource.setMaxTotal(100); // Número máximo de conexiones
+        dataSource.setMaxIdle(30);  // Número máximo de conexiones inactivas
+        dataSource.setMinIdle(10);   // Número mínimo de conexiones inactivas
+        dataSource.setMaxWaitMillis(10000); // Tiempo máximo de espera para obtener una conexión
     }
-    //
+
+    // Método para obtener una conexión desde el pool
     public static Connection getConnection() throws SQLException {
-        return getDataSource().getConnection();
-
+        return dataSource.getConnection();
     }
 
-
-    public static void close(ResultSet rs){
-        try{
-            rs.close();
-
-        }
-        catch (SQLException ex){
+    // Método para cerrar el ResultSet
+    public static void close(ResultSet rs) {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+        } catch (SQLException ex) {
             ex.printStackTrace(System.out);
         }
     }
-    public static void close(PreparedStatement stmt){
-        try{
-            stmt.close();
-        }
-        catch (SQLException e){
+
+    // Método para cerrar el PreparedStatement
+    public static void close(PreparedStatement stmt) {
+        try {
+            if (stmt != null) {
+                stmt.close();
+            }
+        } catch (SQLException e) {
             e.printStackTrace(System.out);
         }
     }

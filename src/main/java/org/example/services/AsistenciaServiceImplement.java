@@ -24,19 +24,16 @@ public class AsistenciaServiceImplement implements AsistenciaService {
     }
 
     @Override
-    public boolean actualizar(Asistencia asistencia) {
-        String sql = "UPDATE Asistencias SET id_usuario = ?, id_registrador = ?, tipo_asistencia = ? WHERE id = ?";
-
+    public boolean actualizar(Asistencia asistencia) throws SQLException {
+        String sql = "UPDATE Asistencias SET id_usuario = ?, tipo_asistencia = ?, " +
+                "fecha_asistencia = ? WHERE id = ?";
         try (PreparedStatement ps = asistenciaRepositorio.getConnection().prepareStatement(sql)) {
             ps.setInt(1, asistencia.getIdUsuario());
-            ps.setInt(2, asistencia.getIdRegistrador());
-            ps.setString(3, asistencia.getTipoAsistencia());
+            ps.setString(2, asistencia.getTipoAsistencia());
+            ps.setTimestamp(3, asistencia.getFechaAsistencia());
             ps.setInt(4, asistencia.getIdAsistencia());
 
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Error al actualizar asistencia: " + e.getMessage());
-            return false;
         }
     }
 
@@ -86,6 +83,11 @@ public class AsistenciaServiceImplement implements AsistenciaService {
     }
 
     @Override
+    public AsistenciaVista obtenerVistaPorId(int idAsistencia) {
+        return obtenerConDetalles(idAsistencia);
+    }
+
+    @Override
     public AsistenciaVista obtenerConDetalles(int idAsistencia) {
         String sql = "SELECT * FROM VistaAsistencias WHERE id_asistencia = ?";
 
@@ -127,16 +129,14 @@ public class AsistenciaServiceImplement implements AsistenciaService {
     }
 
     @Override
-    public boolean validarClienteDeEntrenador(int idCliente, int idEntrenador) {
+    public boolean validarClienteDeEntrenador(int idCliente, int idEntrenador) throws SQLException {
         String sql = "SELECT COUNT(*) FROM Rutinas WHERE id_cliente = ? AND id_entrenador = ?";
         try (PreparedStatement ps = asistenciaRepositorio.getConnection().prepareStatement(sql)) {
             ps.setInt(1, idCliente);
             ps.setInt(2, idEntrenador);
-            ResultSet rs = ps.executeQuery();
-            return rs.next() && rs.getInt(1) > 0;
-        } catch (SQLException e) {
-            System.err.println("Error validando relación entrenador-cliente: " + e.getMessage());
-            return false;
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
         }
     }
 
@@ -166,6 +166,7 @@ public class AsistenciaServiceImplement implements AsistenciaService {
         }
         return clientes;
     }
+
     private Asistencia mapearAsistencia(ResultSet rs) throws SQLException {
         Asistencia asistencia = new Asistencia();
         asistencia.setIdAsistencia(rs.getInt("id"));
@@ -176,5 +177,56 @@ public class AsistenciaServiceImplement implements AsistenciaService {
         return asistencia;
     }
 
+    @Override
+    public List<UsuarioLogin> listarTodosUsuarios() {
+        List<UsuarioLogin> usuarios = new ArrayList<>();
+        String sql = "SELECT id, usuario, cedula, rol FROM Usuarios ORDER BY usuario";
 
+        try (PreparedStatement ps = asistenciaRepositorio.getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                UsuarioLogin usuario = new UsuarioLogin(
+                        rs.getInt("id"),
+                        rs.getString("usuario"),
+                        null, // No incluir la contraseña por seguridad
+                        rs.getString("rol"),
+                        rs.getString("cedula")
+                );
+                usuarios.add(usuario);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al listar todos los usuarios: " + e.getMessage());
+        }
+        return usuarios;
+    }
+
+    @Override
+    public Asistencia obtenerPorId(int id) throws SQLException {
+        String sql = "SELECT * FROM Asistencias WHERE id = ?";
+        try (PreparedStatement ps = asistenciaRepositorio.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Asistencia asistencia = new Asistencia();
+                    asistencia.setIdAsistencia(rs.getInt("id"));
+                    asistencia.setIdUsuario(rs.getInt("id_usuario"));
+                    asistencia.setIdRegistrador(rs.getInt("id_registrador"));
+                    asistencia.setTipoAsistencia(rs.getString("tipo_asistencia"));
+                    asistencia.setFechaAsistencia(rs.getTimestamp("fecha_asistencia"));
+                    return asistencia;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean eliminarAsistencia(int idAsistencia) throws SQLException {
+        String sql = "DELETE FROM Asistencias WHERE id = ?";
+        try (PreparedStatement ps = asistenciaRepositorio.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idAsistencia);
+            return ps.executeUpdate() > 0;
+        }
+    }
 }

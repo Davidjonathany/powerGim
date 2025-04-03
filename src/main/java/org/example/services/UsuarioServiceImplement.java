@@ -86,4 +86,34 @@ public class UsuarioServiceImplement implements UsuarioService {
             throw new ServiceException("Error al validar el usuario", ex);
         }
     }
+
+    @Override
+    public List<Usuario> listarPorRol(String rol) throws SQLException {
+        try {
+            return repositorio.listarPorRol(rol);
+        } catch (SQLException ex) {
+            throw new ServiceException("Error al listar usuarios por rol", ex);
+        }
+    }
+
+    @Override
+    public List<Usuario> listarClientesPorEntrenador(int idEntrenador) throws SQLException {
+        try {
+            return repositorio.listarClientesPorEntrenador(idEntrenador);
+        } catch (SQLException ex) {
+            throw new ServiceException("Error al listar clientes por entrenador", ex);
+        }
+    }
+    public UsuarioRepositorio getRepositorio() {
+        return repositorio;
+    }
+
+    @Override
+    public List<Usuario> buscarUsuariosCompleto(String query) throws SQLException {
+        try {
+            return repositorio.buscarUsuariosCompleto(query);
+        } catch (SQLException ex) {
+            throw new ServiceException("Error al buscar usuarios", ex);
+        }
+    }
 }

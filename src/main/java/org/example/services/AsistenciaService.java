@@ -5,11 +5,13 @@ package org.example.services;
 import org.example.modelos.Asistencia;
 import org.example.modelos.AsistenciaVista;
 import org.example.modelos.UsuarioLogin;
+
+import java.sql.SQLException;
 import java.util.List;
 
 public interface AsistenciaService {
     boolean agregar(Asistencia asistencia);
-    boolean actualizar(Asistencia asistencia);
+    boolean actualizar(Asistencia asistencia) throws SQLException;
     List<Asistencia> listar();
     List<AsistenciaVista> listarConDetalles();
     List<AsistenciaVista> listarPorUsuario(int idUsuario);
@@ -17,7 +19,10 @@ public interface AsistenciaService {
     AsistenciaVista obtenerConDetalles(int idAsistencia);
     int obtenerIdUsuarioPorCedula(String cedula);
     List<AsistenciaVista> listarPorCedula(String busqueda);
-    boolean validarClienteDeEntrenador(int idCliente, int idEntrenador);
     List<UsuarioLogin> obtenerClientesPorEntrenador(int idEntrenador);
-
+    List<UsuarioLogin> listarTodosUsuarios();
+    AsistenciaVista obtenerVistaPorId(int id) throws SQLException;
+    Asistencia obtenerPorId(int id) throws SQLException;
+    boolean validarClienteDeEntrenador(int idCliente, int idEntrenador) throws SQLException;
+    boolean eliminarAsistencia(int idAsistencia) throws SQLException;
 }

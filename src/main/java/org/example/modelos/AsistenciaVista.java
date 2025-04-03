@@ -16,6 +16,7 @@ public class AsistenciaVista {
     private String nombreRegistrador;
     private String apellidoRegistrador;
     private String rolRegistrador;
+    private String fechaAsistenciaFormatted; // Solo para el formulario web
 
     // Getters y Setters
     public int getIdAsistencia() {
@@ -99,6 +100,13 @@ public class AsistenciaVista {
 
     public void setRolRegistrador(String rolRegistrador) {
         this.rolRegistrador = rolRegistrador;
+    }
+    public String getFechaAsistenciaFormatted() {
+        return fechaAsistenciaFormatted;
+    }
+
+    public void setFechaAsistenciaFormatted(String fechaAsistenciaFormatted) {
+        this.fechaAsistenciaFormatted = fechaAsistenciaFormatted;
     }
 
 }

@@ -22,11 +22,27 @@ public class Conexion {
         dataSource.setUrl(JDBC_URL);
         dataSource.setUsername(JDBC_USERNAME);
         dataSource.setPassword(JDBC_PASSWORD);
-        dataSource.setInitialSize(10); // Número inicial de conexiones en el pool
-        dataSource.setMaxTotal(100); // Número máximo de conexiones
-        dataSource.setMaxIdle(30);  // Número máximo de conexiones inactivas
-        dataSource.setMinIdle(10);   // Número mínimo de conexiones inactivas
-        dataSource.setMaxWaitMillis(10000); // Tiempo máximo de espera para obtener una conexión
+
+        // Configuración básica del pool
+        dataSource.setInitialSize(20);
+        dataSource.setMaxTotal(150);
+        dataSource.setMaxIdle(50);
+        dataSource.setMinIdle(20);
+        dataSource.setMaxWaitMillis(5000);
+
+        // Protección contra conexiones rotas
+        dataSource.setTestOnBorrow(true);
+        dataSource.setValidationQuery("SELECT 1");
+
+        // Chequeo periódico de conexiones inactivas
+        dataSource.setTestWhileIdle(true);
+        dataSource.setTimeBetweenEvictionRunsMillis(60000);  // 1 minuto
+        dataSource.setMinEvictableIdleTimeMillis(300000);    // 5 minutos
+
+        // Manejo de conexiones abandonadas
+        dataSource.setRemoveAbandonedTimeout(60);
+        dataSource.setRemoveAbandonedOnBorrow(true);
+        dataSource.setLogAbandoned(true);
     }
 
     // Método para obtener una conexión desde el pool

@@ -49,11 +49,27 @@ public class AsistenciaVistaServiceImplement implements AsistenciaVistaService {
 
     @Override
     public List<AsistenciaVista> listarPorEntrenador(int idEntrenador) {
+        System.out.println("Ejecutando consulta para entrenador ID: " + idEntrenador);
         String sql = "SELECT v.* FROM VistaAsistencias v " +
                 "JOIN Rutinas r ON v.id_usuario = r.id_cliente " +
-                "WHERE r.id_entrenador = ? AND v.rol = 'Cliente' " +
+                "WHERE r.id_entrenador = ? " +
                 "ORDER BY v.fecha_asistencia DESC";
-        return ejecutarConsultaConParametro(sql, idEntrenador);
+
+        try (PreparedStatement ps = repositorio.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idEntrenador);
+            ResultSet rs = ps.executeQuery();
+
+            List<AsistenciaVista> resultados = new ArrayList<>();
+            while (rs.next()) {
+                resultados.add(repositorio.mapearAsistenciaVista(rs));
+            }
+
+            System.out.println("Asistencias encontradas: " + resultados.size());
+            return resultados;
+        } catch (SQLException e) {
+            System.err.println("Error al listar por entrenador: " + e.getMessage());
+            throw new RuntimeException("Error en la consulta", e);
+        }
     }
 
     @Override
@@ -233,6 +249,55 @@ public class AsistenciaVistaServiceImplement implements AsistenciaVistaService {
             e.printStackTrace();
         }
         return asistencias;
+    }
+
+    @Override
+    public List<AsistenciaVista> listarTodosUsuariosCompletos() {
+        String sql = "SELECT id, nombre, apellido, cedula, rol FROM Usuarios ORDER BY nombre";
+        List<AsistenciaVista> usuarios = new ArrayList<>();
+
+        try (PreparedStatement ps = repositorio.getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                AsistenciaVista usuario = new AsistenciaVista();
+                usuario.setIdUsuario(rs.getInt("id"));
+                usuario.setNombre(rs.getString("nombre"));
+                usuario.setApellido(rs.getString("apellido"));
+                usuario.setCedula(rs.getString("cedula"));
+                usuario.setRol(rs.getString("rol"));
+                usuarios.add(usuario);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al listar todos los usuarios: " + e.getMessage());
+        }
+        return usuarios;
+    }
+
+    @Override
+    public List<AsistenciaVista> listarClientesPorEntrenador(int idEntrenador) {
+        String sql = "SELECT u.id, u.nombre, u.apellido, u.cedula, u.rol " +
+                "FROM Usuarios u JOIN Rutinas r ON u.id = r.id_cliente " +
+                "WHERE r.id_entrenador = ? AND u.rol = 'Cliente'";
+        List<AsistenciaVista> clientes = new ArrayList<>();
+
+        try (PreparedStatement ps = repositorio.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idEntrenador);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                AsistenciaVista cliente = new AsistenciaVista();
+                cliente.setIdUsuario(rs.getInt("id"));
+                cliente.setNombre(rs.getString("nombre"));
+                cliente.setApellido(rs.getString("apellido"));
+                cliente.setCedula(rs.getString("cedula"));
+                cliente.setRol(rs.getString("rol"));
+                clientes.add(cliente);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al listar clientes por entrenador: " + e.getMessage());
+        }
+        return clientes;
     }
 
 }

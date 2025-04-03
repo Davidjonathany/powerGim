@@ -178,4 +178,14 @@ public class RutinaServiceImpl implements RutinaService {
     public int contarTotalRutinas() {
         return repositorio.contarTotalRutinas();
     }
+
+    @Override
+    public VistaRutina obtenerVistaRutinaCompletaPorId(int idRutina) {
+        if (idRutina <= 0) {
+            System.err.println("ID de rutina inválido");
+            return null;
+        }
+        return repositorio.obtenerVistaRutinaCompletaPorId(idRutina);
+    }
+
 }

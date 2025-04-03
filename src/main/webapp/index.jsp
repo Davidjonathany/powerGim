@@ -140,21 +140,23 @@
                         <p class="text-muted">Ingresa tus credenciales para acceder</p>
                     </div>
 
-                    <% if (request.getParameter("error") != null) { %>
-                    <p style="color: red;">
+                    <% if (request.getAttribute("error") != null) { %>
+                    <div class="alert alert-danger">
                         <%
-                            String error = request.getParameter("error");
+                            String error = (String) request.getAttribute("error");
                             if ("nouser".equals(error)) {
                                 out.print("Usuario o contraseña incorrectos. Verifica tus credenciales.");
                             } else if ("wrongrole".equals(error)) {
                                 out.print("No tienes permisos para acceder con este rol.");
                             } else if ("invalidrole".equals(error)) {
                                 out.print("Rol no reconocido.");
+                            } else if ("server".equals(error)) {
+                                out.print("Error en el servidor. Por favor intenta nuevamente.");
                             } else {
                                 out.print("Error desconocido.");
                             }
                         %>
-                    </p>
+                    </div>
                     <% } %>
 
 
@@ -188,6 +190,10 @@
                             <button type="submit" class="btn btn-primary btn-login">
                                 <i class="fas fa-sign-in-alt me-2"></i>Ingresar
                             </button>
+                        </div>
+                        <br>
+                        <div class="text-center mt-3">
+                            <p class="mb-0">¿No tienes cuenta? <a href="${pageContext.request.contextPath}/registro">Regístrate aquí</a></p>
                         </div>
                     </form>
                 </div>

@@ -3,6 +3,7 @@ package org.example.services;
 //Fecha de creación 27-03-2025
 import org.example.modelos.Usuario;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,4 +21,7 @@ public interface UsuarioService {
     Optional<Usuario> buscarPorCedula(String cedula);
 
     boolean isValidUser(String usuario, String clave);
+    List<Usuario> buscarUsuariosCompleto(String query) throws SQLException;
+    List<Usuario> listarPorRol(String rol) throws SQLException;
+    List<Usuario> listarClientesPorEntrenador(int idEntrenador) throws SQLException;
 }

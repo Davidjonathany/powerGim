@@ -24,6 +24,7 @@ public interface RutinaService {
     List<VistaRutina> filtrarRutinasAvanzado(String nombreCliente, String nombreEntrenador,
                                              String tipoEntrenamiento, int offset, int limit);
 
+    VistaRutina obtenerVistaRutinaCompletaPorId(int idRutina);
     // Métodos para conteo y paginación
     int contarTotalRutinas(); // Método añadido
     int contarRutinasFiltradas(String nombreCliente, String nombreEntrenador,

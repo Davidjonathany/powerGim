@@ -175,4 +175,117 @@ public class UsuarioRepositorio implements Repositorio<Usuario> {
             }
         }
     }
-}
+
+    public List<Usuario> buscarPorNombreApellidoOCedula(String query, String rol) throws SQLException {
+        String sql = "SELECT id, nombre, apellido, cedula FROM Usuarios " +
+                "WHERE (nombre LIKE ? OR apellido LIKE ? OR cedula LIKE ?) " +
+                "AND rol = ? LIMIT 10";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String likeQuery = "%" + query + "%";
+            stmt.setString(1, likeQuery);
+            stmt.setString(2, likeQuery);
+            stmt.setString(3, likeQuery);
+            stmt.setString(4, rol);
+
+            ResultSet rs = stmt.executeQuery();
+            List<Usuario> usuarios = new ArrayList<>();
+
+            while (rs.next()) {
+                Usuario usuario = new Usuario();
+                usuario.setId(rs.getInt("id"));
+                usuario.setNombre(rs.getString("nombre"));
+                usuario.setApellido(rs.getString("apellido"));
+                usuario.setCedula(rs.getString("cedula"));
+                usuarios.add(usuario);
+            }
+
+            return usuarios;
+        }
+    }
+    public Usuario buscarClientePorCedula(String cedula) throws SQLException {
+        Usuario usuario = null;
+        String sql = "SELECT * FROM usuarios WHERE cedula = ? AND rol = 'Cliente'";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, cedula);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    usuario = new Usuario();
+                    usuario.setId(rs.getInt("id"));
+                    usuario.setNombre(rs.getString("nombre"));
+                    usuario.setApellido(rs.getString("apellido"));
+                    usuario.setCedula(rs.getString("cedula"));
+                    // Solo asignar los campos necesarios
+                }
+            }
+        }
+        return usuario;
+    }
+
+        public List<Usuario> listarPorRol(String rol) throws SQLException {
+            String sql = "SELECT * FROM Usuarios WHERE rol = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, rol);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    List<Usuario> usuarios = new ArrayList<>();
+                    while (rs.next()) {
+                        usuarios.add(mapearUsuario(rs));
+                    }
+                    return usuarios;
+                }
+            }
+        }
+
+        public List<Usuario> listarClientesPorEntrenador(int idEntrenador) throws SQLException {
+            String sql = "SELECT u.* FROM Usuarios u JOIN Rutinas r ON u.id = r.id_cliente " +
+                    "WHERE r.id_entrenador = ? AND u.rol = 'Cliente'";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, idEntrenador);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    List<Usuario> clientes = new ArrayList<>();
+                    while (rs.next()) {
+                        clientes.add(mapearUsuario(rs));
+                    }
+                    return clientes;
+                }
+            }
+        }
+
+        private Usuario mapearUsuario(ResultSet rs) throws SQLException {
+            Usuario usuario = new Usuario();
+            usuario.setId(rs.getInt("id"));
+            usuario.setNombre(rs.getString("nombre"));
+            usuario.setApellido(rs.getString("apellido"));
+            usuario.setUsuario(rs.getString("usuario"));
+            usuario.setClave(rs.getString("clave"));
+            usuario.setRol(rs.getString("rol"));
+            usuario.setCorreo(rs.getString("correo"));
+            usuario.setTelefono(rs.getString("telefono"));
+            usuario.setCedula(rs.getString("cedula"));
+            usuario.setDireccion(rs.getString("direccion"));
+            return usuario;
+        }
+    public List<Usuario> buscarUsuariosCompleto(String query) throws SQLException {
+        String sql = "SELECT * FROM usuarios WHERE " +
+                "(nombre LIKE ? OR " +
+                "apellido LIKE ? OR " +
+                "cedula LIKE ?)";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String likeQuery = "%" + query + "%";
+            stmt.setString(1, likeQuery);
+            stmt.setString(2, likeQuery);
+            stmt.setString(3, likeQuery);
+
+            ResultSet rs = stmt.executeQuery();
+            List<Usuario> usuarios = new ArrayList<>();
+
+            while (rs.next()) {
+                usuarios.add(mapearUsuario(rs));
+            }
+
+            return usuarios;
+        }
+    }
+    }
+

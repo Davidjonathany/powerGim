@@ -20,4 +20,6 @@ public interface AsistenciaVistaService {
     List<AsistenciaVista> listarPorFechaYEntrenador(String fecha, int idEntrenador);
     List<AsistenciaVista> filtrarAsistencias(String cedula, String tipo, String fecha, int offset, int limit);
     int contarAsistencias(String cedula, String tipo, String fecha);
+    List<AsistenciaVista> listarTodosUsuariosCompletos();
+    List<AsistenciaVista> listarClientesPorEntrenador(int idEntrenador);
 }

@@ -1,11 +1,16 @@
 package org.example.modelos;
 
+// Desarrollado por David Jonathan Yepez Proaño
+// Fecha de creación 01-04-2025
 public class ReporteCliente {
     // Datos Cliente
-    private String nombreCliente;
     private int idCliente;
-    private String contactoCliente;
+    private String nombre;
+    private String apellido;
+    private String usuario;
     private String correo;
+    private String telefono;
+    private String cedula; // Agregando la cédula
 
     // Datos Membresía
     private String tipoMembresia;
@@ -14,30 +19,45 @@ public class ReporteCliente {
     private int diasRestantes;
     private String estadoMembresia;
 
-    // Datos Entrenador
-    private String nombreEntrenador;
-    private String contactoEntrenador;
+    // Progreso de Peso
+    private double pesoInicial;
+    private double pesoActual;
+    private double progresoPeso;
+    private String ultimaActualizacionPeso;
 
-    // Datos Asistencia y Rutina
-    private String fechaAsistencia;
-    private String tipoEntrenamiento;
-    private String ejercicio;
-    private int repeticiones;
-    private double peso;
-    private String tiempo;
+    // Asistencias
+    private int totalAsistencias;
+    private String ultimaAsistencia;
+    private int asistenciasUltimaSemana;
+    private int asistenciasUltimoMes;
 
-    // Getters y Setters (completos)
-    public String getNombreCliente() { return nombreCliente; }
-    public void setNombreCliente(String nombreCliente) { this.nombreCliente = nombreCliente; }
+    // Rutinas y Entrenadores
+    private int totalRutinas;
+    private String entrenadores;
 
+    private String rol;
+
+    // Getters y Setters
     public int getIdCliente() { return idCliente; }
     public void setIdCliente(int idCliente) { this.idCliente = idCliente; }
 
-    public String getContactoCliente() { return contactoCliente; }
-    public void setContactoCliente(String contactoCliente) { this.contactoCliente = contactoCliente; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public String getApellido() { return apellido; }
+    public void setApellido(String apellido) { this.apellido = apellido; }
+
+    public String getUsuario() { return usuario; }
+    public void setUsuario(String usuario) { this.usuario = usuario; }
 
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
+
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
+
+    public String getCedula() { return cedula; }
+    public void setCedula(String cedula) { this.cedula = cedula; }
 
     public String getTipoMembresia() { return tipoMembresia; }
     public void setTipoMembresia(String tipoMembresia) { this.tipoMembresia = tipoMembresia; }
@@ -54,27 +74,36 @@ public class ReporteCliente {
     public String getEstadoMembresia() { return estadoMembresia; }
     public void setEstadoMembresia(String estadoMembresia) { this.estadoMembresia = estadoMembresia; }
 
-    public String getNombreEntrenador() { return nombreEntrenador; }
-    public void setNombreEntrenador(String nombreEntrenador) { this.nombreEntrenador = nombreEntrenador; }
+    public double getPesoInicial() { return pesoInicial; }
+    public void setPesoInicial(double pesoInicial) { this.pesoInicial = pesoInicial; }
 
-    public String getContactoEntrenador() { return contactoEntrenador; }
-    public void setContactoEntrenador(String contactoEntrenador) { this.contactoEntrenador = contactoEntrenador; }
+    public double getPesoActual() { return pesoActual; }
+    public void setPesoActual(double pesoActual) { this.pesoActual = pesoActual; }
 
-    public String getFechaAsistencia() { return fechaAsistencia; }
-    public void setFechaAsistencia(String fechaAsistencia) { this.fechaAsistencia = fechaAsistencia; }
+    public double getProgresoPeso() { return progresoPeso; }
+    public void setProgresoPeso(double progresoPeso) { this.progresoPeso = progresoPeso; }
 
-    public String getTipoEntrenamiento() { return tipoEntrenamiento; }
-    public void setTipoEntrenamiento(String tipoEntrenamiento) { this.tipoEntrenamiento = tipoEntrenamiento; }
+    public String getUltimaActualizacionPeso() { return ultimaActualizacionPeso; }
+    public void setUltimaActualizacionPeso(String ultimaActualizacionPeso) { this.ultimaActualizacionPeso = ultimaActualizacionPeso; }
 
-    public String getEjercicio() { return ejercicio; }
-    public void setEjercicio(String ejercicio) { this.ejercicio = ejercicio; }
+    public int getTotalAsistencias() { return totalAsistencias; }
+    public void setTotalAsistencias(int totalAsistencias) { this.totalAsistencias = totalAsistencias; }
 
-    public int getRepeticiones() { return repeticiones; }
-    public void setRepeticiones(int repeticiones) { this.repeticiones = repeticiones; }
+    public String getUltimaAsistencia() { return ultimaAsistencia; }
+    public void setUltimaAsistencia(String ultimaAsistencia) { this.ultimaAsistencia = ultimaAsistencia; }
 
-    public double getPeso() { return peso; }
-    public void setPeso(double peso) { this.peso = peso; }
+    public int getAsistenciasUltimaSemana() { return asistenciasUltimaSemana; }
+    public void setAsistenciasUltimaSemana(int asistenciasUltimaSemana) { this.asistenciasUltimaSemana = asistenciasUltimaSemana; }
 
-    public String getTiempo() { return tiempo; }
-    public void setTiempo(String tiempo) { this.tiempo = tiempo; }
+    public int getAsistenciasUltimoMes() { return asistenciasUltimoMes; }
+    public void setAsistenciasUltimoMes(int asistenciasUltimoMes) { this.asistenciasUltimoMes = asistenciasUltimoMes; }
+
+    public int getTotalRutinas() { return totalRutinas; }
+    public void setTotalRutinas(int totalRutinas) { this.totalRutinas = totalRutinas; }
+
+    public String getEntrenadores() { return entrenadores; }
+    public void setEntrenadores(String entrenadores) { this.entrenadores = entrenadores; }
+
+    public String getRol() { return rol; }
+    public void setRol(String rol) { this.rol = rol; }
 }

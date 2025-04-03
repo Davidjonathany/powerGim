@@ -1,7 +1,6 @@
 package org.example.servlet;
 // Desarrollado por David Jonathan Yepez Proaño
 // Fecha de creación 26-03-2025
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -27,58 +26,65 @@ public class LoginServlet extends HttpServlet {
         if (session != null) {
             session.invalidate();
         }
-        response.sendRedirect("index.jsp");
+        // Redirigir al index (página pública fuera de WEB-INF)
+        response.sendRedirect(request.getContextPath() + "/index.jsp");
     }
-        @Override
-        protected void doPost(HttpServletRequest request, HttpServletResponse response)
-                throws ServletException, IOException {
-            String usuario = request.getParameter("usuario");
-            String clave = request.getParameter("clave");
-            String rolFormulario = request.getParameter("rol");
 
-            try (Connection conn = Conexion.getConnection()) {
-                UsuarioLoginService loginService = new UsuarioLoginServiceImplement(conn);
-                Optional<UsuarioLogin> usuarioValidado = loginService.autenticar(usuario, clave);
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String usuario = request.getParameter("usuario");
+        String clave = request.getParameter("clave");
+        String rolFormulario = request.getParameter("rol");
 
-                if (!usuarioValidado.isPresent()) {
-                    response.sendRedirect("index.jsp?error=nouser");
-                    return;
-                }
+        try (Connection conn = Conexion.getConnection()) {
+            UsuarioLoginService loginService = new UsuarioLoginServiceImplement(conn);
+            Optional<UsuarioLogin> usuarioValidado = loginService.autenticar(usuario, clave);
 
-                UsuarioLogin user = usuarioValidado.get();
-
-                if (!user.getRol().equals(rolFormulario)) {
-                    response.sendRedirect("index.jsp?error=wrongrole");
-                    return;
-                }
-
-                HttpSession session = request.getSession();
-                session.setAttribute("usuario", user);
-                session.setAttribute("rol", user.getRol());
-                session.setAttribute("idUsuario", user.getId());
-                session.setAttribute("cedula", user.getCedula());  // Guardamos la cédula
-
-                switch (user.getRol()) {
-                    case "Administrador":
-                        response.sendRedirect(request.getContextPath() + "/admin/home.jsp");
-                        break;
-                    case "Entrenador":
-                        response.sendRedirect(request.getContextPath() + "/entrenador/home.jsp");
-                        break;
-                    case "Cliente":
-                        response.sendRedirect(request.getContextPath() + "/cliente/home.jsp");
-                        break;
-                    default:
-                        session.invalidate();
-                        response.sendRedirect("index.jsp?error=invalidrole");
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                response.sendRedirect("index.jsp?error=server");
+            // Validación de usuario
+            if (!usuarioValidado.isPresent()) {
+                request.setAttribute("error", "nouser");
+                request.getRequestDispatcher("/index.jsp").forward(request, response);
+                return;
             }
+
+            UsuarioLogin user = usuarioValidado.get();
+
+            // Validación de rol
+            if (!user.getRol().equals(rolFormulario)) {
+                request.setAttribute("error", "wrongrole");
+                request.getRequestDispatcher("/index.jsp").forward(request, response);
+                return;
+            }
+
+            // Crear sesión
+            HttpSession session = request.getSession();
+            session.setAttribute("usuario", user);
+            session.setAttribute("rol", user.getRol());
+            session.setAttribute("idUsuario", user.getId());
+            session.setAttribute("cedula", user.getCedula());
+
+            // Redirección según rol
+            switch (user.getRol()) {
+                case "Administrador":
+                    response.sendRedirect(request.getContextPath() + "/home");
+                    break;
+                case "Entrenador":
+                    response.sendRedirect(request.getContextPath() + "/home");
+                    break;
+                case "Cliente":
+                    response.sendRedirect(request.getContextPath() + "/home");
+                    break;
+                default:
+                    session.invalidate();
+                    request.setAttribute("error", "invalidrole");
+                    request.getRequestDispatcher("/index.jsp").forward(request, response);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "server");
+            request.getRequestDispatcher("/index.jsp").forward(request, response);
         }
     }
-
-
-
+}

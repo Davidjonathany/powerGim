@@ -342,4 +342,40 @@ public class RutinaRepositorio {
         vista.setObservaciones(rs.getString("observaciones"));
         return vista;
     }
+
+    public VistaRutina obtenerVistaRutinaCompletaPorId(int idRutina) {
+        String sql = "SELECT r.id AS idRutina, r.id_cliente, r.id_entrenador, " +
+                "c.nombre AS clienteNombre, c.apellido AS clienteApellido, c.rol AS clienteRol, " +
+                "e.nombre AS entrenadorNombre, e.apellido AS entrenadorApellido, e.rol AS entrenadorRol, " +
+                "r.tipo_entrenamiento, r.observaciones " +
+                "FROM Rutinas r " +
+                "JOIN Usuarios c ON r.id_cliente = c.id " +
+                "LEFT JOIN Usuarios e ON r.id_entrenador = e.id " +
+                "WHERE r.id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idRutina);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    VistaRutina vistaRutina = new VistaRutina();
+                    vistaRutina.setIdRutina(rs.getInt("idRutina"));
+                    vistaRutina.setIdCliente(rs.getInt("id_cliente"));
+                    vistaRutina.setIdEntrenador(rs.getInt("id_entrenador"));
+                    vistaRutina.setClienteNombre(rs.getString("clienteNombre"));
+                    vistaRutina.setClienteApellido(rs.getString("clienteApellido"));
+                    vistaRutina.setClienteRol(rs.getString("clienteRol"));
+                    vistaRutina.setEntrenadorNombre(rs.getString("entrenadorNombre"));
+                    vistaRutina.setEntrenadorApellido(rs.getString("entrenadorApellido"));
+                    vistaRutina.setEntrenadorRol(rs.getString("entrenadorRol"));
+                    vistaRutina.setTipoEntrenamiento(rs.getString("tipo_entrenamiento"));
+                    vistaRutina.setObservaciones(rs.getString("observaciones"));
+                    return vistaRutina;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

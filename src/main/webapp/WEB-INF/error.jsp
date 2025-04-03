@@ -9,7 +9,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<jsp:include page="../cabecero.jsp"/>
+<jsp:include page="cabecero.jsp"/>
 
 <div class="content-wrapper">
     <h1>Ocurrió un error</h1>
@@ -19,4 +19,4 @@
     <a href="${pageContext.request.contextPath}/LoginServlet">Volver al inicio</a>
 </div>
 
-<jsp:include page="../footer.jsp"/>
+<jsp:include page="footer.jsp"/>
